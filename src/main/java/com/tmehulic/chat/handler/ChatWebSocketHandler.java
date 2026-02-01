@@ -1,10 +1,13 @@
 package com.tmehulic.chat.handler;
 
 import com.tmehulic.chat.dto.ChatRoom;
+import com.tmehulic.chat.dto.Message;
 import com.tmehulic.chat.helper.ChatPatternHelper;
 import com.tmehulic.chat.service.ChatService;
+import com.tmehulic.chat.utils.InetAddressUtils;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -15,28 +18,48 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import tools.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ChatWebSocketHandler implements WebSocketHandler {
 
     private final ChatService chatService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public @NonNull Mono<Void> handle(@NonNull WebSocketSession session) {
         ChatRoom room = chatService.getRoom(getRoomName(session.getHandshakeInfo()));
-        Flux<String> history = chatService.getHistory(room);
-        Flux<String> messages = chatService.getMessages(room).replay(10).autoConnect();
 
-        Mono<Void> send = session.send(Flux.concat(history, messages).map(session::textMessage));
+        Flux<Message> history = chatService.getHistory(room);
+        Flux<Message> messages = chatService.getMessages(room).replay(10).autoConnect();
+
+        log.info("WebSocket connection established for room: {}", room.getName());
+
+        String user = InetAddressUtils.getIpAddress(session.getHandshakeInfo().getRemoteAddress());
+
+        chatService.joined(user, room);
+
+        Mono<Void> send =
+                session.send(
+                        Flux.concat(history, messages)
+                                .map(message -> session.textMessage(asPayload(message))));
 
         Mono<Void> receive =
                 session.receive()
-                        .doOnNext(msg -> chatService.addMessage(msg.getPayloadAsText(), room))
+                        .doOnNext(
+                                msg ->
+                                        chatService.addMessage(
+                                                asChatMessage(msg.getPayloadAsText()), room))
                         .then();
 
-        return Mono.when(send, receive);
+        return Mono.when(send, receive)
+                .onErrorContinue(
+                        (error, obj) ->
+                                log.error("Error while processing : {}", error.getMessage()));
     }
 
     private String getRoomName(HandshakeInfo handshakeInfo) {
@@ -44,5 +67,13 @@ public class ChatWebSocketHandler implements WebSocketHandler {
         String path = uri.getPath();
         return ChatPatternHelper.getChatRoomName(path)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid room path: " + path));
+    }
+
+    private Message asChatMessage(String payload) {
+        return objectMapper.readValue(payload, Message.class);
+    }
+
+    private String asPayload(Message message) {
+        return objectMapper.writeValueAsString(message);
     }
 }

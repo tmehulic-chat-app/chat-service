@@ -15,6 +15,6 @@ import java.util.UUID;
 public class ChatRoom {
     private String name;
     private UUID uuid;
-    private Sinks.Many<String> messages;
-    private Deque<String> history;
+    private Sinks.Many<Message> messages;
+    private Deque<Message> history;
 }

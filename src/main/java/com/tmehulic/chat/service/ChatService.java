@@ -1,6 +1,7 @@
 package com.tmehulic.chat.service;
 
 import com.tmehulic.chat.dto.ChatRoom;
+import com.tmehulic.chat.dto.Message;
 
 import lombok.AllArgsConstructor;
 
@@ -49,16 +50,26 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
     }
 
-    public Flux<String> getMessages(ChatRoom room) {
+    public Flux<Message> getMessages(ChatRoom room) {
         return room.getMessages().asFlux();
     }
 
-    public Flux<String> getHistory(ChatRoom room) {
+    public Flux<Message> getHistory(ChatRoom room) {
         return Flux.fromIterable(room.getHistory());
     }
 
-    public void addMessage(String message, ChatRoom room) {
+    public void addMessage(Message message, ChatRoom room) {
         room.getHistory().add(message);
+        room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
+    }
+
+    public void joined(String user, ChatRoom room) {
+        var message = new Message(user, String.format("%s has joined the room!", user));
+        room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
+    }
+
+    public void left(String user, ChatRoom room) {
+        var message = new Message(user, String.format("%s has left the room!", user));
         room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
     }
 }
