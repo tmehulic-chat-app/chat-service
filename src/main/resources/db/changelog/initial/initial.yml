@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1770669181950-1
+      author: TMehulic
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: ROOM_PK
+                  name: ID
+                  type: UUID
+              - column:
+                  name: DESCRIPTION
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: NAME
+                  type: VARCHAR(60)
+            tableName: ROOM

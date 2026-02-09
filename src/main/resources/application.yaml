@@ -1,6 +1,20 @@
 spring:
   application:
     name: chat-service
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:chatdb
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.yml
+    database-change-log-table: CHAT_DB_CHANGELOG
+    database-change-log-lock-table: CHAT_DB_CHANGELOG_LOCK
 
 server:
   port: 8081
