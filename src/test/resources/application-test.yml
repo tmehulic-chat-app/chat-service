@@ -1,9 +1,7 @@
 spring:
-  application:
-    name: chat-service
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./local.chat;AUTO_SERVER=true
+    url: jdbc:h2:mem:chat
     username: sa
     password: password
   jpa:
@@ -15,11 +13,3 @@ spring:
     change-log: classpath:db/changelog/changelog-master.yml
     database-change-log-table: CHAT_DB_CHANGELOG
     database-change-log-lock-table: CHAT_DB_CHANGELOG_LOCK
-  webflux:
-    apiversion:
-      use:
-        header: API-Version
-      default: 1.0
-
-server:
-  port: 8081

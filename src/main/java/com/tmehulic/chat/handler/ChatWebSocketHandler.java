@@ -1,9 +1,9 @@
 package com.tmehulic.chat.handler;
 
-import com.tmehulic.chat.dto.ChatRoom;
-import com.tmehulic.chat.dto.Message;
 import com.tmehulic.chat.helper.ChatPatternHelper;
-import com.tmehulic.chat.service.ChatService;
+import com.tmehulic.chat.model.ChatRoom;
+import com.tmehulic.chat.model.Message;
+import com.tmehulic.chat.service.chat.ChatServiceImpl;
 import com.tmehulic.chat.utils.InetAddressUtils;
 
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.net.URI;
 @AllArgsConstructor
 public class ChatWebSocketHandler implements WebSocketHandler {
 
-    private final ChatService chatService;
+    private final ChatServiceImpl chatService;
     private final ObjectMapper objectMapper;
 
     @Override

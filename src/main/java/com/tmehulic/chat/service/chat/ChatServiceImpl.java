@@ -1,7 +1,7 @@
-package com.tmehulic.chat.service;
+package com.tmehulic.chat.service.chat;
 
-import com.tmehulic.chat.dto.ChatRoom;
-import com.tmehulic.chat.dto.Message;
+import com.tmehulic.chat.model.ChatRoom;
+import com.tmehulic.chat.model.Message;
 
 import lombok.AllArgsConstructor;
 
@@ -16,11 +16,11 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class ChatService {
+public class ChatServiceImpl implements ChatService {
 
     private List<ChatRoom> ROOM_LIST;
 
-    public ChatService() {
+    public ChatServiceImpl() {
         init();
     }
 
@@ -50,24 +50,29 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
     }
 
+    @Override
     public Flux<Message> getMessages(ChatRoom room) {
         return room.getMessages().asFlux();
     }
 
+    @Override
     public Flux<Message> getHistory(ChatRoom room) {
         return Flux.fromIterable(room.getHistory());
     }
 
+    @Override
     public void addMessage(Message message, ChatRoom room) {
         room.getHistory().add(message);
         room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
     }
 
+    @Override
     public void joined(String user, ChatRoom room) {
         var message = new Message(user, String.format("%s has joined the room!", user));
         room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
     }
 
+    @Override
     public void left(String user, ChatRoom room) {
         var message = new Message(user, String.format("%s has left the room!", user));
         room.getMessages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);

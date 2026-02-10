@@ -1,4 +1,4 @@
-package com.tmehulic.chat.dto;
+package com.tmehulic.chat.model;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

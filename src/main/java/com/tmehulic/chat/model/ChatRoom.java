@@ -1,4 +1,4 @@
-package com.tmehulic.chat.dto;
+package com.tmehulic.chat.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

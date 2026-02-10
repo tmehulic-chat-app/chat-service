@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/initial/initial.yml
+  - include:
+      file: db/changelog/initial/init-data.yml

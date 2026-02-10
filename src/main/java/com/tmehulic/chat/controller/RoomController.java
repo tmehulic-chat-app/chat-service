@@ -1,7 +1,8 @@
 package com.tmehulic.chat.controller;
 
-import com.tmehulic.chat.dto.Room;
-import com.tmehulic.chat.service.RoomService;
+import com.tmehulic.chat.model.Room;
+import com.tmehulic.chat.model.RoomRequest;
+import com.tmehulic.chat.service.room.RoomServiceImpl;
 
 import lombok.AllArgsConstructor;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/rooms")
 public class RoomController {
-    private final RoomService roomService;
+    private final RoomServiceImpl roomService;
 
     @GetMapping(version = "1.0")
     public List<Room> find() {
@@ -34,13 +35,14 @@ public class RoomController {
     }
 
     @PostMapping(version = "1.0")
-    public Room create(@RequestBody Room room) {
-        return roomService.create(room);
+    public Room create(@RequestBody RoomRequest request) {
+        return roomService.create(request);
     }
 
     @PutMapping(path = "/{uuid}", version = "1.0")
-    public Room update(@PathVariable UUID uuid, @RequestBody Room room) {
-        return roomService.update(uuid, room);
+    public Room update(@PathVariable UUID uuid, @RequestBody RoomRequest request) {
+        request.setId(uuid);
+        return roomService.update(request);
     }
 
     @DeleteMapping(path = "/{uuid}", version = "1.0")

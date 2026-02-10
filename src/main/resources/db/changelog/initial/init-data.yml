@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1770669181950-1
+      author: TMehulic
+      changes:
+        - insert:
+            columns:
+              - column:
+                  name: ID
+                  value: 00000000-0000-0000-0000-000000000001
+              - column:
+                  name: NAME
+                  value: "Room 1"
+              - column:
+                  name: DESCRIPTION
+                  value: "First room"
+            tableName: ROOM
+        - insert:
+            columns:
+              - column:
+                  name: ID
+                  value: 00000000-0000-0000-0000-000000000002
+              - column:
+                  name: NAME
+                  value: "Room 2"
+              - column:
+                  name: DESCRIPTION
+                  value: "Second room"
+            tableName: ROOM
