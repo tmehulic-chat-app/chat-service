@@ -2,6 +2,8 @@ package com.tmehulic.chat.service.chat;
 
 import com.tmehulic.chat.model.ChatRoom;
 import com.tmehulic.chat.model.Message;
+import com.tmehulic.chat.model.Room;
+import com.tmehulic.chat.service.room.RoomService;
 
 import lombok.AllArgsConstructor;
 
@@ -11,43 +13,32 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.util.ArrayDeque;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @AllArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-    private List<ChatRoom> ROOM_LIST;
+    private RoomService roomService;
+    private static final Map<UUID, ChatRoom> rooms = new ConcurrentHashMap<>();
 
-    public ChatServiceImpl() {
-        init();
-    }
-
-    private void init() {
-        ChatRoom room1 =
+    @Override
+    public ChatRoom getRoom(UUID id) {
+        if (rooms.containsKey(id)) {
+            return rooms.get(id);
+        }
+        Room room = roomService.findOne(id);
+        ChatRoom chatRoom =
                 ChatRoom.builder()
-                        .name("test")
-                        .uuid(UUID.randomUUID())
+                        .name(room.name())
+                        .uuid(id)
                         .history(new ArrayDeque<>())
                         .messages(Sinks.many().multicast().onBackpressureBuffer())
                         .build();
-        ChatRoom room2 =
-                ChatRoom.builder()
-                        .name("random")
-                        .uuid(UUID.randomUUID())
-                        .history(new ArrayDeque<>())
-                        .messages(Sinks.many().multicast().onBackpressureBuffer())
-                        .build();
-
-        ROOM_LIST = List.of(room1, room2);
-    }
-
-    public ChatRoom getRoom(String name) {
-        return ROOM_LIST.stream()
-                .filter(room -> room.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+        rooms.put(id, chatRoom);
+        return chatRoom;
     }
 
     @Override

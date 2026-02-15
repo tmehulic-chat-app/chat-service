@@ -5,15 +5,17 @@ import com.tmehulic.chat.model.Message;
 
 import reactor.core.publisher.Flux;
 
+import java.util.UUID;
+
 /** Service interface for chat room operations, including message handling and user presence. */
 public interface ChatService {
     /**
-     * Retrieves a chat room by its name.
+     * Retrieves a chat room by the Room's id.
      *
-     * @param name the name of the chat room
+     * @param id the name of the chat room
      * @return the ChatRoom object
      */
-    ChatRoom getRoom(String name);
+    ChatRoom getRoom(UUID id);
 
     /**
      * Returns a stream of messages for the given chat room.

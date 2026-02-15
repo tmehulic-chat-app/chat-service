@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
     @Override
     public @NonNull Mono<Void> handle(@NonNull WebSocketSession session) {
-        ChatRoom room = chatService.getRoom(getRoomName(session.getHandshakeInfo()));
+        ChatRoom room = chatService.getRoom(getRoomId(session.getHandshakeInfo()));
 
         Flux<Message> history = chatService.getHistory(room);
         Flux<Message> messages = chatService.getMessages(room).replay(10).autoConnect();
@@ -62,10 +63,10 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                                 log.error("Error while processing : {}", error.getMessage()));
     }
 
-    private String getRoomName(HandshakeInfo handshakeInfo) {
+    private UUID getRoomId(HandshakeInfo handshakeInfo) {
         URI uri = handshakeInfo.getUri();
         String path = uri.getPath();
-        return ChatPatternHelper.getChatRoomName(path)
+        return ChatPatternHelper.getChatRoomId(path)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid room path: " + path));
     }
 
