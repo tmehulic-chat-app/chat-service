@@ -55,6 +55,9 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                                 msg ->
                                         chatService.addMessage(
                                                 asChatMessage(msg.getPayloadAsText()), room))
+                        .doOnComplete(() -> {
+                            chatService.left(user, room);
+                        })
                         .then();
 
         return Mono.when(send, receive)
