@@ -38,7 +38,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
         Flux<Message> history = chatService.getHistory(room);
         Flux<Message> messages = chatService.getMessages(room).replay(10).autoConnect();
 
-        log.info("WebSocket connection established for room: {}", room.getName());
+        log.info("WebSocket connection established for room: {}", room.name());
 
         String user = InetAddressUtils.getIpAddress(session.getHandshakeInfo().getRemoteAddress());
 
@@ -55,9 +55,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                                 msg ->
                                         chatService.addMessage(
                                                 asChatMessage(msg.getPayloadAsText()), room))
-                        .doOnComplete(() -> {
-                            chatService.left(user, room);
-                        })
+                        .doOnComplete(() -> chatService.left(user, room))
                         .then();
 
         return Mono.when(send, receive)

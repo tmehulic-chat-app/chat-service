@@ -6,14 +6,12 @@ import com.tmehulic.chat.repository.entity.RoomEntity;
 
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RoomMapper {
-    @Mapping(target = "messages", ignore = true)
     RoomEntity toEntity(RoomRequest request);
 
     @InheritConfiguration

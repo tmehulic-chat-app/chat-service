@@ -2,11 +2,8 @@ package com.tmehulic.chat.repository.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -39,7 +36,10 @@ public class MessageEntity {
     @Column(name = "timestamp", nullable = false)
     private OffsetDateTime timestamp;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false, updatable = false)
-    private RoomEntity room;
+    @Column(name = "room_id", nullable = false, updatable = false)
+    private UUID roomId;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "room_id", nullable = false, updatable = false)
+//    private RoomEntity room;
 }
