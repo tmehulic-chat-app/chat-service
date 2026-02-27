@@ -137,12 +137,22 @@
                     <dependency>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter-data-jpa</artifactId>
-                        <version>3.5.8</version>
+                        <version>3.5.11</version>
                     </dependency>
                     <dependency>
                         <groupId>com.h2database</groupId>
                         <artifactId>h2</artifactId>
                         <version>2.4.240</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>jakarta.validation</groupId>
+                        <artifactId>jakarta.validation-api</artifactId>
+                        <version>3.0.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jboss.logging</groupId>
+                        <artifactId>jboss-logging</artifactId>
+                        <version>3.6.2.Final</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -156,6 +166,8 @@
 
                     <changeSetAuthor>TMehulic</changeSetAuthor>
                     <changeLogFile>db/changelog/changelog-master.yml</changeLogFile>
+
+                    <analyticsEnabled>false</analyticsEnabled>
 
                     <diffChangeLogFile>${project.build.directory}/liquibase-diff.yaml</diffChangeLogFile>
 

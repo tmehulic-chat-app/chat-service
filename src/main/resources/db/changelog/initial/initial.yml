@@ -21,3 +21,50 @@ databaseChangeLog:
                   name: NAME
                   type: VARCHAR(60)
             tableName: ROOM
+  - changeSet:
+      id: 1772228421271-1
+      author: TMehulic
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: MESSAGE_PK
+                  name: id
+                  type: UUID
+              - column:
+                  constraints:
+                    nullable: false
+                  name: content
+                  type: CLOB
+              - column:
+                  constraints:
+                    nullable: false
+                  name: sender
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: timestamp
+                  type: TIMESTAMP(6) WITH TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: room_id
+                  type: UUID
+            tableName: message
+  - changeSet:
+      id: 1772228421271-2
+      author: TMehulic
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: room_id
+            baseTableName: message
+            constraintName: message_room_fk
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: room
+            validate: true
