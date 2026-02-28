@@ -1,9 +1,9 @@
 package com.tmehulic.chat.service.chat;
 
-import com.tmehulic.chat.model.ChatRoom;
 import com.tmehulic.chat.model.Message;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -13,9 +13,9 @@ public interface ChatService {
      * Retrieves a chat room by the Room's id.
      *
      * @param id the name of the chat room
-     * @return the ChatRoom object
+     * @return a Mono of the ChatRoom object
      */
-    ChatRoom getRoom(UUID id);
+    Mono<ChatRoom> getRoom(UUID id);
 
     /**
      * Returns a stream of messages for the given chat room.

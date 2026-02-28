@@ -1,9 +1,7 @@
 package com.tmehulic.chat.service.chat;
 
 import com.tmehulic.chat.mapper.MessageMapper;
-import com.tmehulic.chat.model.ChatRoom;
 import com.tmehulic.chat.model.Message;
-import com.tmehulic.chat.model.Room;
 import com.tmehulic.chat.repository.MessageRepository;
 import com.tmehulic.chat.repository.entity.MessageEntity;
 import com.tmehulic.chat.service.room.RoomService;
@@ -32,15 +30,15 @@ public class ChatServiceImpl implements ChatService {
     private static final Map<UUID, ChatRoom> rooms = new ConcurrentHashMap<>();
 
     @Override
-    public ChatRoom getRoom(UUID id) {
-        if (rooms.containsKey(id)) {
-            return rooms.get(id);
+    public Mono<ChatRoom> getRoom(UUID id) {
+        ChatRoom existing = rooms.get(id);
+        if (existing != null) {
+            return Mono.just(existing);
         }
-        Room room = roomService.findOne(id);
-        ChatRoom chatRoom = new ChatRoom(id, room.name());
-
-        rooms.put(id, chatRoom);
-        return chatRoom;
+        return Mono.fromCallable(() -> roomService.findOne(id))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(room -> new ChatRoom(id, room.name()))
+                .doOnNext(chatRoom -> rooms.putIfAbsent(id, chatRoom));
     }
 
     @Override
@@ -50,10 +48,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Flux<Message> getHistory(ChatRoom room) {
-        return Mono.fromCallable(
-                        () -> {
-                            return messageRepository.findByRoomId(room.uuid());
-                        })
+        return Mono.fromCallable(() -> messageRepository.findByRoomId(room.uuid()))
                 .subscribeOn(Schedulers.boundedElastic())
                 .map(entities -> messageMapper.toDto(entities))
                 .flatMapIterable(messages -> messages);
@@ -71,7 +66,10 @@ public class ChatServiceImpl implements ChatService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnNext(
                         entity -> {
-                            room.messages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
+                            room.messages()
+                                    .emitNext(
+                                            messageMapper.toDto(entity),
+                                            Sinks.EmitFailureHandler.FAIL_FAST);
                         })
                 .subscribe();
     }

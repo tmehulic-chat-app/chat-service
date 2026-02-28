@@ -1,4 +1,6 @@
-package com.tmehulic.chat.model;
+package com.tmehulic.chat.service.chat;
+
+import com.tmehulic.chat.model.Message;
 
 import reactor.core.publisher.Sinks;
 
