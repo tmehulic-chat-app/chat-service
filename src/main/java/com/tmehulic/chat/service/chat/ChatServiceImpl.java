@@ -65,12 +65,11 @@ public class ChatServiceImpl implements ChatService {
                         })
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnNext(
-                        entity -> {
-                            room.messages()
-                                    .emitNext(
-                                            messageMapper.toDto(entity),
-                                            Sinks.EmitFailureHandler.FAIL_FAST);
-                        })
+                        entity ->
+                                room.messages()
+                                        .emitNext(
+                                                messageMapper.toDto(entity),
+                                                Sinks.EmitFailureHandler.FAIL_FAST))
                 .subscribe();
     }
 

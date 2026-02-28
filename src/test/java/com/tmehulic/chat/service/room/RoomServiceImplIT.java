@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @ActiveProfiles({"test", "test-override"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-public class RoomServiceImplIT {
+class RoomServiceImplIT {
     @Autowired private RoomService roomService;
 
     @Test
@@ -65,8 +65,11 @@ public class RoomServiceImplIT {
         request.setName("Delete Room");
         request.setDescription("To be deleted");
         Room created = roomService.create(request);
-        roomService.delete(created.id());
-        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> roomService.findOne(created.id()));
+        UUID id = created.id();
+        roomService.delete(id);
+        IllegalArgumentException thrown =
+                Assertions.assertThrows(
+                        IllegalArgumentException.class, () -> roomService.findOne(id));
         Assertions.assertTrue(thrown.getMessage().contains("Room not found"));
     }
 
@@ -92,7 +95,8 @@ public class RoomServiceImplIT {
         RoomRequest request = new RoomRequest();
         request.setName(null);
         request.setDescription("desc");
-        Assertions.assertThrows(ConstraintViolationException.class, () -> roomService.create(request));
+        Assertions.assertThrows(
+                ConstraintViolationException.class, () -> roomService.create(request));
     }
 
     @Test
@@ -100,7 +104,8 @@ public class RoomServiceImplIT {
         RoomRequest request = new RoomRequest();
         request.setName("ab"); // too short
         request.setDescription("desc");
-        Assertions.assertThrows(ConstraintViolationException.class, () -> roomService.create(request));
+        Assertions.assertThrows(
+                ConstraintViolationException.class, () -> roomService.create(request));
     }
 
     @Test
@@ -108,13 +113,15 @@ public class RoomServiceImplIT {
         RoomRequest request = new RoomRequest();
         request.setName("Valid Name");
         request.setDescription("a".repeat(256)); // too long
-        Assertions.assertThrows(ConstraintViolationException.class, () -> roomService.create(request));
+        Assertions.assertThrows(
+                ConstraintViolationException.class, () -> roomService.create(request));
     }
 
     @Test
     void shouldThrowWhenFindingNonExistentRoom() {
         UUID randomId = UUID.randomUUID();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> roomService.findOne(randomId));
+        Assertions.assertThrows(
+                IllegalArgumentException.class, () -> roomService.findOne(randomId));
     }
 
     @Test

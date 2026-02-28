@@ -29,7 +29,4 @@ public class RoomEntity {
 
     @Column(name = "description", length = 255)
     private String description;
-
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "room")
-//    private List<MessageEntity> messages;
 }

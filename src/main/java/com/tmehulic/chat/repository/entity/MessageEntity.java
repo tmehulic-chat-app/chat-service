@@ -40,8 +40,4 @@ public class MessageEntity {
 
     @Column(name = "room_id", nullable = false, updatable = false)
     private UUID roomId;
-
-    //    @ManyToOne(fetch = FetchType.LAZY)
-    //    @JoinColumn(name = "room_id", nullable = false, updatable = false)
-    //    private RoomEntity room;
 }
