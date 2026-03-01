@@ -7,20 +7,22 @@ import com.tmehulic.chat.repository.entity.MessageEntity;
 import com.tmehulic.chat.service.room.RoomService;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
-import reactor.core.scheduler.Schedulers;
 
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ChatServiceImpl implements ChatService {
 
     private RoomService roomService;
@@ -35,10 +37,10 @@ public class ChatServiceImpl implements ChatService {
         if (existing != null) {
             return Mono.just(existing);
         }
-        return Mono.fromCallable(() -> roomService.findOne(id))
-                .subscribeOn(Schedulers.boundedElastic())
+        return roomService
+                .findOne(id)
                 .map(room -> new ChatRoom(id, room.name()))
-                .doOnNext(chatRoom -> rooms.putIfAbsent(id, chatRoom));
+                .doOnNext(chatRoom -> rooms.put(id, chatRoom));
     }
 
     @Override
@@ -48,40 +50,38 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Flux<Message> getHistory(ChatRoom room) {
-        return Mono.fromCallable(() -> messageRepository.findByRoomId(room.uuid()))
-                .subscribeOn(Schedulers.boundedElastic())
-                .map(entities -> messageMapper.toDto(entities))
-                .flatMapIterable(messages -> messages);
+        return messageRepository.findByRoomId(room.uuid()).map(messageMapper::toDto);
     }
 
     @Override
-    public void addMessage(Message message, ChatRoom room) {
-        Mono.fromCallable(
-                        () -> {
-                            MessageEntity entity = messageMapper.toEntity(message);
-                            entity.setRoomId(room.uuid());
-                            messageRepository.save(entity);
-                            return entity;
-                        })
-                .subscribeOn(Schedulers.boundedElastic())
+    public Mono<Void> addMessage(Message message, ChatRoom room) {
+        MessageEntity entity = messageMapper.toEntity(message);
+        entity.setId(UUID.randomUUID());
+        entity.setRoomId(room.uuid());
+        entity.setTimestamp(OffsetDateTime.now());
+
+        return messageRepository
+                .save(entity)
                 .doOnNext(
-                        entity ->
+                        saved ->
                                 room.messages()
                                         .emitNext(
-                                                messageMapper.toDto(entity),
+                                                messageMapper.toDto(saved),
                                                 Sinks.EmitFailureHandler.FAIL_FAST))
-                .subscribe();
+                .then();
     }
 
     @Override
-    public void joined(String user, ChatRoom room) {
+    public Mono<Void> joined(String user, ChatRoom room) {
         var message = new Message(user, String.format("%s has joined the room!", user));
-        room.messages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
+        return Mono.fromRunnable(
+                () -> room.messages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST));
     }
 
     @Override
-    public void left(String user, ChatRoom room) {
+    public Mono<Void> left(String user, ChatRoom room) {
         var message = new Message(user, String.format("%s has left the room!", user));
-        room.messages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
+        return Mono.fromRunnable(
+                () -> room.messages().emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST));
     }
 }

@@ -1,32 +1,28 @@
 package com.tmehulic.chat.repository.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
 @Table(name = "room")
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomEntity {
 
-    @Id @UuidGenerator private UUID id;
+    @Id private UUID id;
 
-    @Column(name = "name", length = 60, nullable = false)
+    @Column(value = "name")
     private String name;
 
-    @Column(name = "description", length = 255)
+    @Column(value = "description")
     private String description;
 }

@@ -1,20 +1,18 @@
 spring:
   application:
     name: chat-service
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./local.chat;AUTO_SERVER=true
+  r2dbc:
+    url: r2dbc:h2:file:///./local.chat;AUTO_SERVER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     username: sa
     password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: validate
   liquibase:
+    url: jdbc:h2:file:./local.chat
+    user: sa
+    password: password
     enabled: true
     change-log: classpath:db/changelog/changelog-master.yml
-    database-change-log-table: CHAT_DB_CHANGELOG
-    database-change-log-lock-table: CHAT_DB_CHANGELOG_LOCK
+    database-change-log-table: chat_db_changelog
+    database-change-log-lock-table: chat_db_changelog_lock
   webflux:
     apiversion:
       use:

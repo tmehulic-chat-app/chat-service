@@ -7,7 +7,9 @@ import jakarta.validation.Valid;
 
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.UUID;
 
 /**
@@ -21,9 +23,9 @@ public interface RoomService {
     /**
      * Retrieves all chat rooms.
      *
-     * @return a list of all {@link Room} objects in the system; never null
+     * @return flux of all {@link Room} objects in the system
      */
-    List<Room> find();
+    Flux<Room> find();
 
     /**
      * Finds a chat room by its unique identifier.
@@ -32,7 +34,7 @@ public interface RoomService {
      * @return the {@link Room} object with the specified id, if found; otherwise, throws an
      *     exception
      */
-    Room findOne(UUID id);
+    Mono<Room> findOne(UUID id);
 
     /**
      * Creates a new chat room based on the provided request data.
@@ -40,20 +42,22 @@ public interface RoomService {
      * @param room the {@link RoomRequest} containing details for the new room
      * @return the created {@link Room} object
      */
-    Room create(@Valid RoomRequest room);
+    Mono<Room> create(@Valid RoomRequest room);
 
     /**
      * Updates an existing chat room with new data.
      *
+     * @param id the {@link UUID} of the room to update
      * @param room the {@link RoomRequest} containing updated room data
      * @return the updated {@link Room} object, or throws an exception if the room does not exist
      */
-    Room update(@Valid RoomRequest room);
+    Mono<Room> update(UUID id, @Valid RoomRequest room);
 
     /**
      * Deletes a chat room by its unique identifier.
      *
      * @param id the {@link UUID} of the room to delete
+     * @return a Mono of Void
      */
-    void delete(UUID id);
+    Mono<Void> delete(UUID id);
 }

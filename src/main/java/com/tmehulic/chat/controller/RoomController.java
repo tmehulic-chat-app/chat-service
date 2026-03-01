@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -25,28 +27,27 @@ public class RoomController {
     private final RoomServiceImpl roomService;
 
     @GetMapping(version = "1.0")
-    public List<Room> find() {
+    public Flux<Room> find() {
         return roomService.find();
     }
 
-    @GetMapping(path = "/{uuid}", version = "1.0")
-    public Room findOne(@PathVariable UUID uuid) {
-        return roomService.findOne(uuid);
+    @GetMapping(path = "/{id}", version = "1.0")
+    public Mono<Room> findOne(@PathVariable UUID id) {
+        return roomService.findOne(id);
     }
 
     @PostMapping(version = "1.0")
-    public Room create(@RequestBody RoomRequest request) {
+    public Mono<Room> create(@RequestBody RoomRequest request) {
         return roomService.create(request);
     }
 
-    @PutMapping(path = "/{uuid}", version = "1.0")
-    public Room update(@PathVariable UUID uuid, @RequestBody RoomRequest request) {
-        request.setId(uuid);
-        return roomService.update(request);
+    @PutMapping(path = "/{id}", version = "1.0")
+    public Mono<Room> update(@PathVariable UUID id, @RequestBody RoomRequest request) {
+        return roomService.update(id, request);
     }
 
-    @DeleteMapping(path = "/{uuid}", version = "1.0")
-    public void delete(@PathVariable UUID uuid) {
-        roomService.delete(uuid);
+    @DeleteMapping(path = "/{id}", version = "1.0")
+    public Mono<Void> delete(@PathVariable UUID id) {
+        return roomService.delete(id);
     }
 }

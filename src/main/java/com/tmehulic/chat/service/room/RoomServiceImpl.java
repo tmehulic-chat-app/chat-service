@@ -10,7 +10,9 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.UUID;
 
 @Service
@@ -20,40 +22,39 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMapper roomMapper;
 
     @Override
-    public List<Room> find() {
-        var rooms = roomRepository.findAll();
-        return roomMapper.toDto(rooms);
+    public Flux<Room> find() {
+        return roomRepository.findAll().map(roomMapper::toDto);
     }
 
     @Override
-    public Room findOne(UUID id) {
-        var room = findByIdOrThrow(id);
-        return roomMapper.toDto(room);
+    public Mono<Room> findOne(UUID id) {
+        return findByIdOrThrow(id).map(roomMapper::toDto);
     }
 
     @Override
-    public Room create(RoomRequest request) {
-        RoomEntity roomEntity = roomMapper.toEntity(request);
-        roomEntity = roomRepository.save(roomEntity);
-        return roomMapper.toDto(roomEntity);
+    public Mono<Room> create(RoomRequest request) {
+        RoomEntity entity = roomMapper.toEntity(request);
+        entity.setId(UUID.randomUUID());
+        return roomRepository.save(entity).map(roomMapper::toDto);
     }
 
     @Override
-    public Room update(RoomRequest request) {
-        RoomEntity roomEntity = findByIdOrThrow(request.getId());
-        roomMapper.updateEntity(request, roomEntity);
-        roomRepository.save(roomEntity);
-        return roomMapper.toDto(roomEntity);
+    public Mono<Room> update(UUID id, RoomRequest request) {
+        return findByIdOrThrow(id)
+                .doOnNext(entity -> roomMapper.updateEntity(request, entity))
+                .flatMap(roomRepository::save)
+                .map(roomMapper::toDto);
     }
 
     @Override
-    public void delete(UUID id) {
-        roomRepository.deleteById(id);
+    public Mono<Void> delete(UUID id) {
+        return roomRepository.deleteById(id);
     }
 
-    private RoomEntity findByIdOrThrow(UUID id) {
+    private Mono<RoomEntity> findByIdOrThrow(UUID id) {
         return roomRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + id));
+                .switchIfEmpty(
+                        Mono.error(new IllegalArgumentException("Room not found with id: " + id)));
     }
 }

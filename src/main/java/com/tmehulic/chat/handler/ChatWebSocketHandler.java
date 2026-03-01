@@ -17,6 +17,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.util.UUID;
@@ -39,15 +40,9 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                                         .map(room -> new SessionContext(sessionInfo, room)))
                 .flatMap(
                         ctx -> {
-                            log.info(
-                                    "WebSocket connection established for room: {}",
-                                    ctx.room().name());
-
                             Flux<Message> history = chatService.getHistory(ctx.room());
                             Flux<Message> messages =
-                                    chatService.getMessages(ctx.room()).replay(10).autoConnect();
-
-                            chatService.joined(ctx.sessionInfo().user(), ctx.room());
+                                    chatService.getMessages(ctx.room()).replay(10).autoConnect(0);
 
                             Mono<Void> send =
                                     session.send(
@@ -61,20 +56,25 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
                             Mono<Void> receive =
                                     session.receive()
-                                            .doOnNext(
+                                            .flatMap(
                                                     msg ->
                                                             chatService.addMessage(
                                                                     messageConverter.asMessage(
                                                                             msg.getPayloadAsText()),
                                                                     ctx.room()))
-                                            .doOnComplete(
-                                                    () ->
-                                                            chatService.left(
-                                                                    ctx.sessionInfo().user(),
-                                                                    ctx.room()))
                                             .then();
 
-                            return Mono.when(send, receive);
+                            return chatService
+                                    .joined(ctx.sessionInfo().user(), ctx.room())
+                                    .then(send.and(receive))
+                                    .publishOn(Schedulers.boundedElastic())
+                                    .doFinally(
+                                            signal ->
+                                                    chatService
+                                                            .left(
+                                                                    ctx.sessionInfo().user(),
+                                                                    ctx.room())
+                                                            .subscribe());
                         })
                 .onErrorContinue(
                         (error, obj) ->

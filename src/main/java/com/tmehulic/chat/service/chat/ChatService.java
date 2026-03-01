@@ -38,22 +38,25 @@ public interface ChatService {
      *
      * @param message the message to add
      * @param room the chat room
+     * @return a Mono of Void
      */
-    void addMessage(Message message, ChatRoom room);
+    Mono<Void> addMessage(Message message, ChatRoom room);
 
     /**
      * Marks a user as having joined the chat room.
      *
      * @param user the username
      * @param room the chat room
+     * @return a Mono of Void
      */
-    void joined(String user, ChatRoom room);
+    Mono<Void> joined(String user, ChatRoom room);
 
     /**
      * Marks a user as having left the chat room.
      *
      * @param user the username
      * @param room the chat room
+     * @return a Mono of Void
      */
-    void left(String user, ChatRoom room);
+    Mono<Void> left(String user, ChatRoom room);
 }
