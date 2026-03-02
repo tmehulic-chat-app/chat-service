@@ -20,6 +20,9 @@ databaseChangeLog:
                     nullable: false
                   name: name
                   type: VARCHAR(60)
+              - column:
+                  name: version
+                  type: BIGINT
             tableName: room
   - changeSet:
       id: 1772228421271-1
