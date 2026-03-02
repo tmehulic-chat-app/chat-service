@@ -10,14 +10,6 @@ public class ChatPatternHelper {
 
     private static final Pattern CHAT_ROOM_PATTERN = Pattern.compile("/chat/(.+)");
 
-    public static Optional<String> getChatRoomName(String path) {
-        Matcher matcher = CHAT_ROOM_PATTERN.matcher(path);
-        if (matcher.matches()) {
-            return Optional.of(matcher.group(1));
-        }
-        return Optional.empty();
-    }
-
     public static Optional<UUID> getChatRoomId(String path) {
         Matcher matcher = CHAT_ROOM_PATTERN.matcher(path);
         if (matcher.matches()) {

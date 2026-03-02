@@ -14,6 +14,7 @@ public interface MessageMapper {
 
     List<Message> toDto(List<MessageEntity> entities);
 
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "roomId", ignore = true)
     @Mapping(target = "id", ignore = true)
     MessageEntity toEntity(Message message);
