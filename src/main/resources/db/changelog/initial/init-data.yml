@@ -51,4 +51,4 @@ databaseChangeLog:
               - column:
                   name: VERSION
                   value: '1'
-            tableName: USER
+            tableName: USERS

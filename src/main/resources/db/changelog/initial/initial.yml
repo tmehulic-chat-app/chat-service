@@ -107,4 +107,4 @@ databaseChangeLog:
                     nullable: false
                   name: version
                   type: BIGINT
-            tableName: user
+            tableName: users

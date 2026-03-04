@@ -23,10 +23,7 @@ class RoomServiceImplIT {
     @Autowired private RoomService roomService;
 
     private RoomRequest buildRequest(String name, String description) {
-        RoomRequest request = new RoomRequest();
-        request.setName(name);
-        request.setDescription(description);
-        return request;
+        return new RoomRequest(name, description);
     }
 
     @Test
@@ -38,9 +35,8 @@ class RoomServiceImplIT {
                         created -> {
                             Assertions.assertNotNull(created);
                             Assertions.assertNotNull(created.id());
-                            Assertions.assertEquals(request.getName(), created.name());
-                            Assertions.assertEquals(
-                                    request.getDescription(), created.description());
+                            Assertions.assertEquals(request.name(), created.name());
+                            Assertions.assertEquals(request.description(), created.description());
                         })
                 .verifyComplete();
     }
