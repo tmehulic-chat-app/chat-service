@@ -16,7 +16,7 @@ databaseChangeLog:
                   value: "First room"
               - column:
                   name: VERSION
-                  defaultValue: '1'
+                  value: '1'
             tableName: ROOM
         - insert:
             columns:
@@ -31,5 +31,24 @@ databaseChangeLog:
                   value: "Second room"
               - column:
                   name: VERSION
-                  defaultValue: '1'
+                  value: '1'
             tableName: ROOM
+  - changeSet:
+      id: 1772653874-1
+      author: TMehulic
+      changes:
+        - insert:
+            columns:
+              - column:
+                  name: ID
+                  value: 00000000-0000-0000-0000-000000000001
+              - column:
+                  name: USERNAME
+                  value: "test"
+              - column:
+                  name: PASSWORD
+                  value: "test"
+              - column:
+                  name: VERSION
+                  value: '1'
+            tableName: USER

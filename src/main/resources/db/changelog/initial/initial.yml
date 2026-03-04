@@ -21,6 +21,8 @@ databaseChangeLog:
                   name: name
                   type: VARCHAR(60)
               - column:
+                  constraints:
+                    nullable: false
                   name: version
                   type: BIGINT
             tableName: room
@@ -59,6 +61,8 @@ databaseChangeLog:
                   type: UUID
               - column:
                   name: version
+                  constraints:
+                    nullable: false
                   type: BIGINT
             tableName: message
   - changeSet:
@@ -74,3 +78,33 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: room
             validate: true
+  - changeSet:
+      id: 1772653780-1
+      author: TMehulic
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: USER_PK
+                  name: id
+                  type: UUID
+              - column:
+                  constraints:
+                    nullable: false
+                    unique: true
+                  name: username
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: password
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: version
+                  type: BIGINT
+            tableName: user
