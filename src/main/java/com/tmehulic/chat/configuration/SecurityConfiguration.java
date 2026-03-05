@@ -22,8 +22,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(
+        http.cors(
                         corsSpec -> {
                             corsSpec.configurationSource(
                                     request -> {
@@ -40,7 +39,10 @@ public class SecurityConfiguration {
                                         .pathMatchers("/auth/**")
                                         .permitAll()
                                         .anyExchange()
-                                        .permitAll());
+                                        .permitAll())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
         return http.build();
     }
 }
