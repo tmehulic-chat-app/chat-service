@@ -1,8 +1,13 @@
 package com.tmehulic.chat.configuration;
 
+import com.tmehulic.chat.properties.JwtProperties;
+import com.tmehulic.chat.security.JWTAuthenticationFilter;
+
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +18,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
+@EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfiguration {
 
     @Bean
@@ -21,7 +27,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityFilterChain(
+            ServerHttpSecurity http, JWTAuthenticationFilter jwtAuthenticationFilter) {
         http.cors(
                         corsSpec -> {
                             corsSpec.configurationSource(
@@ -38,8 +45,15 @@ public class SecurityConfiguration {
                                 exchanges
                                         .pathMatchers("/auth/**")
                                         .permitAll()
+                                        .pathMatchers(
+                                                "/scalar/**",
+                                                "/v3/api-docs/**",
+                                                "/webjars/**",
+                                                "/swagger-ui/**")
+                                        .permitAll()
                                         .anyExchange()
-                                        .permitAll())
+                                        .authenticated())
+                .addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable);

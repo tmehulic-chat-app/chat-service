@@ -5,6 +5,7 @@ import com.tmehulic.chat.model.RegisterRequest;
 import com.tmehulic.chat.model.TokenResponse;
 import com.tmehulic.chat.repository.UserRepository;
 import com.tmehulic.chat.repository.entity.UserEntity;
+import com.tmehulic.chat.security.JWTService;
 
 import lombok.AllArgsConstructor;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
     @Override
     public Mono<TokenResponse> login(LoginRequest request) {
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService {
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid credentials")))
                 .filter(user -> passwordEncoder.matches(request.password(), user.getPassword()))
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid credentials")))
-                .map(user -> new TokenResponse("Generated token"));
+                .map(user -> new TokenResponse(jwtService.generateToken(user.getUsername())));
     }
 
     @Override
