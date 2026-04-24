@@ -20,6 +20,8 @@ import java.util.Collections;
 @AllArgsConstructor
 public class JWTAuthenticationFilter implements WebFilter {
 
+    public static final String BEARER_TOKEN_PREFIX = "Bearer ";
+
     private final JWTService jwtService;
 
     @Override
@@ -41,7 +43,7 @@ public class JWTAuthenticationFilter implements WebFilter {
 
     private String extractToken(ServerHttpRequest request) {
         String header = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith(BEARER_TOKEN_PREFIX)) {
             return header.substring(7);
         }
         return null;
