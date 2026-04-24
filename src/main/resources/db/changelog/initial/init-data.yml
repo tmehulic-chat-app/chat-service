@@ -47,7 +47,7 @@ databaseChangeLog:
                   value: "test"
               - column:
                   name: PASSWORD
-                  value: "test"
+                  value: "$2a$10$V7v.egqm1aSIMfLJjf3wZ.2Vh/MC7AoAWi29NNfKR6ZYzdqc1AExi"
               - column:
                   name: VERSION
                   value: '1'
